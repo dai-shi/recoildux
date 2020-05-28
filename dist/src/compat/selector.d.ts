@@ -1,13 +1,14 @@
+import { SetStateAction } from 'react';
 import { Atom, Action } from '../createAtom';
 declare type Options<State> = {
     key: string;
     get: (arg: {
-        get: (a: Atom<any>) => any;
+        get: <S>(a: Atom<S>) => S;
     }) => State | Promise<State>;
     set?: (arg: {
-        get: (a: Atom<any>) => any;
-        set: (a: Atom<any>, v: any) => void;
-    }, newValue: any) => void;
+        get: <S>(a: Atom<S>) => S;
+        set: <S>(a: Atom<S>, v: SetStateAction<S>) => void;
+    }, newValue: State) => void;
 };
 export declare const selector: <State>(options: Options<State>) => {
     symbol: symbol;
