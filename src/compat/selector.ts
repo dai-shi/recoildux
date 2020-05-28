@@ -1,7 +1,6 @@
-/* eslint no-use-before-define: off */
-/* eslint @typescript-eslint/no-use-before-define: off */
-/* eslint @typescript-eslint/no-explicit-any: off */
+/* eslint no-use-before-define: off, @typescript-eslint/no-use-before-define: off */
 
+import { SetStateAction } from 'react';
 import { Dispatch } from 'redux';
 
 import { Atom, Action, createAtom } from '../createAtom';
@@ -10,28 +9,28 @@ import { ATOM_SYMBOL } from './atom';
 type Options<State> = {
   key: string;
   get: (arg: {
-    get: (a: Atom<any>) => any;
+    get: <S>(a: Atom<S>) => S;
   }) => State | Promise<State>;
   set?: (arg: {
-    get: (a: Atom<any>) => any;
-    set: (a: Atom<any>, v: any) => void;
-  }, newValue: any) => void;
+    get: <S>(a: Atom<S>) => S;
+    set: <S>(a: Atom<S>, v: SetStateAction<S>) => void;
+  }, newValue: State) => void;
 };
 
 export const selector = <State>(
   options: Options<State>,
 ) => {
-  const atoms: Atom<any>[] = [];
+  const atoms: Atom<unknown>[] = [];
   const unsubscribes: (() => void)[] = [];
-  const getGet = (a: Atom<any>) => {
-    if (!atoms.includes(a)) {
-      atoms.push(a);
+  const getGet = <S>(a: Atom<S>) => {
+    if (!atoms.includes(a as Atom<unknown>)) {
+      atoms.push(a as Atom<unknown>);
       unsubscribes.push(a.patchedStore.subscribe(evaluate));
     }
     return a.patchedStore.getState();
   };
-  const setGet = (a: Atom<any>) => a.patchedStore.getState();
-  const setSet = (a: Atom<any>, v: any) => {
+  const setGet = <S>(a: Atom<S>) => a.patchedStore.getState();
+  const setSet = <S>(a: Atom<S>, v: SetStateAction<S>) => {
     a.patchedStore.dispatch({
       type: 'SetState',
       setState: v,
